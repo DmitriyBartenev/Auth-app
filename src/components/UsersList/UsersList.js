@@ -1,5 +1,5 @@
 import {useHttp} from '../../hooks/http.hook';
-import { useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
 import { fetchUsers, userDeleted } from '../../redux/actions';
@@ -12,13 +12,15 @@ import './usersList.scss';
 
 const UsersList = () => {
 
+    const [value, setValue] = useState('')
+
     const {request} = useHttp();
 
     const dispatch = useDispatch();
 
     const usersLoadingStatus = useSelector(state => state.users.usersLoadingStatus)
     const users = useSelector(state => state.users.users);
-    
+
     useEffect(()=>{
         dispatch(fetchUsers(request))
         // eslint-disable-next-line
@@ -51,11 +53,21 @@ const UsersList = () => {
         })
     }
 
-    const elements = renderUsersList(users)
+    const filteredUsers = users.filter(user => {
+        return user.name.toLowerCase().includes(value.toLowerCase())
+    })
+
+    const elements = renderUsersList(filteredUsers)
 
     return(
         <div className='wrapper'>
             {elements}
+            <input 
+                type='text'
+                placeholder='Search User By Name'
+                value={value}
+                onChange={(e) => setValue(e.target.value)}
+                />
         </div>
     )
 }
